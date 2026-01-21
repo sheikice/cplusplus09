@@ -62,8 +62,6 @@ void RPN::operate(std::string& token, std::stack<long long>& stck)
 
 	long long tmp = stck.top();
 	stck.pop();
-	if (tmp == 0 && token == "/")
-		throw divideByZeroException();
 	for (int i = 0; i < OPERATIONS_CHOICE; i++)
 		if (operations[i] == token)
 			stck.top() = (*func[i])(stck.top(), tmp);
@@ -75,6 +73,8 @@ std::vector<std::string> RPN::getTokens(char *av)
 	std::vector<std::string> tokens;
 	std::string token;
 
+	if (iss.good() != true)
+		throw BadStreamException();
 	while (iss >> token)
 		tokens.push_back(token);
 	return tokens;
@@ -97,6 +97,8 @@ long long RPN::multiply(long long a, long long b)
 
 long long RPN::divide(long long a, long long b)
 {
+	if (b == 0)
+		throw DivideByZeroException();
 	return a / b;
 }
 
@@ -110,8 +112,12 @@ const char* RPN::WrongEntryException::what() const throw()
 	return "Wrong entry";
 }
 
-const char* RPN::divideByZeroException::what() const throw()
+const char* RPN::DivideByZeroException::what() const throw()
 {
 	return "Attempt to divide by zero";
 }
 
+const char* RPN::BadStreamException::what() const throw()
+{
+	return "Stream has failed";
+}

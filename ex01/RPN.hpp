@@ -32,7 +32,12 @@ class RPN
 		virtual const char* what() const throw();
 	};
 
-	class divideByZeroException: public std::exception
+	class DivideByZeroException: public std::exception
+	{
+		virtual const char* what() const throw();
+	};
+
+	class BadStreamException: public std::exception
 	{
 		virtual const char* what() const throw();
 	};
