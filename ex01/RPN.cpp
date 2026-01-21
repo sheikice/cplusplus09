@@ -14,11 +14,7 @@ void RPN::rpn(char *av)
 		if (isDigit(*it))
 			pushStack(*it, stck);
 		else if (isOperator(*it))
-		{
-			if (tokens.size() < 2)
-				throw WrongEntryException();
 			operate(*it, stck);
-		}
 		else
 			throw WrongEntryException();
 	}
@@ -55,6 +51,8 @@ void RPN::pushStack(std::string& token, std::stack<long long>& stck)
 
 void RPN::operate(std::string& token, std::stack<long long>& stck)
 {
+	if (stck.size() < 2)
+		throw WrongEntryException();
 	static const int OPERATIONS_CHOICE = 5;
 	typedef long long (*ptrFn)(long long, long long);
 	ptrFn func[OPERATIONS_CHOICE] = {&RPN::plus, &RPN::minus, &RPN::multiply, &RPN::divide, &RPN::modulo};
