@@ -4,7 +4,7 @@
 #include <iostream>
 #include <sstream>
 
-void RPN::rpn(char *av)
+void RPN::rpn(const char *av)
 {
 	std::vector<std::string> tokens = getTokens(av);
 	std::stack<long long> stck;
@@ -53,7 +53,6 @@ void RPN::operate(std::string& token, std::stack<long long>& stck)
 {
 	if (stck.size() < 2)
 		throw WrongEntryException();
-	static const int OPERATIONS_CHOICE = 5;
 	typedef long long (*ptrFn)(long long, long long);
 	ptrFn func[OPERATIONS_CHOICE] = {&RPN::plus, &RPN::minus, &RPN::multiply, &RPN::divide, &RPN::modulo};
 	std::string operations[OPERATIONS_CHOICE] = {"+", "-", "*", "/", "%"};
@@ -65,14 +64,12 @@ void RPN::operate(std::string& token, std::stack<long long>& stck)
 			stck.top() = (*func[i])(stck.top(), tmp);
 }
 
-std::vector<std::string> RPN::getTokens(char *av)
+std::vector<std::string> RPN::getTokens(const char *av)
 {
 	std::istringstream iss(av);
 	std::vector<std::string> tokens;
 	std::string token;
 
-	if (iss.good() != true)
-		throw BadStreamException();
 	while (iss >> token)
 		tokens.push_back(token);
 	return tokens;
@@ -102,6 +99,8 @@ long long RPN::divide(long long a, long long b)
 
 long long RPN::modulo(long long a, long long b)
 {
+	if (b == 0)
+		throw DivideByZeroException();
 	return a % b;
 }
 
@@ -113,9 +112,4 @@ const char* RPN::WrongEntryException::what() const throw()
 const char* RPN::DivideByZeroException::what() const throw()
 {
 	return "Attempt to divide by zero";
-}
-
-const char* RPN::BadStreamException::what() const throw()
-{
-	return "Stream has failed";
 }
