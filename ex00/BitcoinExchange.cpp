@@ -11,6 +11,8 @@ void BitcoinExchange::btc(const char *file)
 	std::ifstream isTxt(file);
 	std::map<int, float> map;
 
+	if (isCsv.good() == false || isTxt.good() == false)
+		throw std::runtime_error("Error: file can't be opened\n");
 	mapCsv(isCsv, map);
 	printBtc(isTxt, map);
 }
@@ -37,6 +39,7 @@ void BitcoinExchange::mapLine(std::string& line, std::map<int, float>& map)
 
 float	BitcoinExchange::getFloatValue(const std::string line, const std::string& sep, float max)
 {
+	errno = 0;
 	size_t found = line.find(sep);
 	std::string sub = line.substr(found + sep.size());
 	char *ptr;
@@ -67,7 +70,7 @@ int	BitcoinExchange::getDate(std::string& line, const std::string& sep)
 	return date;
 }
 
-void BitcoinExchange::printBtc(std::ifstream& is, std::map<int, float>& map)
+void BitcoinExchange::printBtc(std::ifstream& is, const std::map<int, float>& map)
 {
 	std::string line;
 	int date;
@@ -93,11 +96,11 @@ void BitcoinExchange::printBtc(std::ifstream& is, std::map<int, float>& map)
 	}
 }
 
-void	BitcoinExchange::printBtcMapValue(std::string& line, std::map<int, float> map, int date, float nbBtc)
+void	BitcoinExchange::printBtcMapValue(std::string& line, const std::map<int, float>& map, int date, float nbBtc)
 {
 	size_t found = line.find(" |");
 	line.resize(found);
-	for (std::map<int, float>::reverse_iterator it = map.rbegin(); it != map.rend(); it++)
+	for (std::map<int, float>::const_reverse_iterator it = map.rbegin(); it != map.rend(); it++)
 	{
 		if (date >= it->first)
 		{
@@ -109,17 +112,12 @@ void	BitcoinExchange::printBtcMapValue(std::string& line, std::map<int, float> m
 			return ;
 		}
 	}
-	std::cout << "Error: bitcoin probably didnt exist\n";
+	std::cout << "Error: No date corresponding => " << line << '\n';
 }
 
 BitcoinExchange::BadFormatException::BadFormatException(const std::string& error): _error("bad input => " + error) {}
 
 BitcoinExchange::BadFormatException::~BadFormatException() throw() {}
-
-const char* BitcoinExchange::BadExtensionException::what() const throw()
-{
-	return "bad extension";
-}
 
 const char* BitcoinExchange::NotPositivNbrException::what() const throw()
 {
