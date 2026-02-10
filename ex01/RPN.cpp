@@ -2,6 +2,7 @@
 #include <cctype>
 #include <cstdlib>
 #include <iostream>
+#include <limits>
 #include <sstream>
 
 void RPN::rpn(const char *av)
@@ -94,6 +95,8 @@ long long RPN::divide(long long a, long long b)
 {
 	if (b == 0)
 		throw DivideByZeroException();
+	if (a == std::numeric_limits<long long>::min() && b == -1)
+		throw std::out_of_range("impossible division");
 	return a / b;
 }
 
@@ -101,6 +104,9 @@ long long RPN::modulo(long long a, long long b)
 {
 	if (b == 0)
 		throw DivideByZeroException();
+	//./RPN "$(python3 -c 'print("0 1 - " + "2 * " * 63)') 0 1 - /"
+	if (a == std::numeric_limits<long long>::min() && b == -1)
+		throw std::out_of_range("impossible division");
 	return a % b;
 }
 

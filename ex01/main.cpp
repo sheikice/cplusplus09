@@ -10,7 +10,7 @@ int main(int ac, char **av)
 	}
 	try
 	{
-		RPN::rpn(av[1]);
+			RPN::rpn(av[1]);
 	}
 	catch (std::exception& e)
 	{
