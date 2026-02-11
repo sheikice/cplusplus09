@@ -8,7 +8,7 @@
 void RPN::rpn(const char *av)
 {
 	std::vector<std::string> tokens = getTokens(av);
-	std::stack<long long> stck;
+	std::stack<int, std::list<int> > stck;
 
 	for (std::vector<std::string>::iterator it = tokens.begin(); it != tokens.end(); it++)
 	{
@@ -35,7 +35,7 @@ bool RPN::isDigit(std::string& token)
 
 bool RPN::isOperator(std::string& token)
 {
-	std::string operations[5] = {"+", "-", "*", "/", "%"};
+	std::string operations[5] = {"+", "-", "*", "/"};
 
 	if (token.size() != 1)
 		return false;
@@ -45,20 +45,22 @@ bool RPN::isOperator(std::string& token)
 	return false;
 }
 
-void RPN::pushStack(std::string& token, std::stack<long long>& stck)
+void RPN::pushStack(std::string& token, std::stack<int, std::list<int> >& stck)
 {
 	stck.push(std::atoi(token.c_str()));
 }
 
-void RPN::operate(std::string& token, std::stack<long long>& stck)
+void RPN::operate(std::string& token, std::stack<int, std::list<int> >& stck)
 {
+	static const int OPERATIONS_CHOICE = 4;
+
 	if (stck.size() < 2)
 		throw WrongEntryException();
-	typedef long long (*ptrFn)(long long, long long);
-	ptrFn func[OPERATIONS_CHOICE] = {&RPN::plus, &RPN::minus, &RPN::multiply, &RPN::divide, &RPN::modulo};
-	std::string operations[OPERATIONS_CHOICE] = {"+", "-", "*", "/", "%"};
+	typedef int (*ptrFn)(int, int);
+	ptrFn func[OPERATIONS_CHOICE] = {&RPN::plus, &RPN::minus, &RPN::multiply, &RPN::divide};
+	std::string operations[OPERATIONS_CHOICE] = {"+", "-", "*", "/"};
 
-	long long tmp = stck.top();
+	int tmp = stck.top();
 	stck.pop();
 	for (int i = 0; i < OPERATIONS_CHOICE; i++)
 		if (operations[i] == token)
@@ -76,38 +78,30 @@ std::vector<std::string> RPN::getTokens(const char *av)
 	return tokens;
 }
 
-long long  RPN::plus(long long a, long long b)
+int  RPN::plus(int a, int b)
 {
 	return a + b;
 }
 
-long long RPN::minus(long long a, long long b)
+int RPN::minus(int a, int b)
 {
 	return a - b;
 }
 
-long long RPN::multiply(long long a, long long b)
+int RPN::multiply(int a, int b)
 {
 	return a * b;
 }
 
-long long RPN::divide(long long a, long long b)
+int RPN::divide(int a, int b)
 {
 	if (b == 0)
 		throw DivideByZeroException();
-	if (a == std::numeric_limits<long long>::min() && b == -1)
-		throw std::out_of_range("impossible division");
-	return a / b;
-}
-
-long long RPN::modulo(long long a, long long b)
-{
-	if (b == 0)
-		throw DivideByZeroException();
+	long int res = static_cast<long int>(a) / b;
 	//./RPN "$(python3 -c 'print("0 1 - " + "2 * " * 63)') 0 1 - /"
-	if (a == std::numeric_limits<long long>::min() && b == -1)
-		throw std::out_of_range("impossible division");
-	return a % b;
+	if (res > std::numeric_limits<int>::max() || res < std::numeric_limits<int>::min())
+		throw std::out_of_range("overflow has occured in division");
+	return res;
 }
 
 const char* RPN::WrongEntryException::what() const throw()
