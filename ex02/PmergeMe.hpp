@@ -40,6 +40,73 @@ class PmergeMe
 			mainChain.insert(it, val);
 		}
 
+		template <typename T1, typename T2>
+		static void	fordJohnSort(T1& unsorted, int& nbCmp)
+		{
+			bool	oddNbr = false;
+			int		lastNbr = unsorted.back();
+
+			if (unsorted.size() < 2)
+				return ;
+			if (unsorted.size() % 2 != 0)
+				oddNbr = true;
+			T2	pairs = makePairs<T1, T2>(unsorted, nbCmp);
+			T1 largers;
+			for (size_t i = 0; i < pairs.size(); ++i)
+				largers.push_back(pairs[i].first);
+			fordJohnSort<T1, T2>(largers, nbCmp);
+			sortPairs(pairs, largers);
+
+			T1	mainChain;
+			T1	pending;
+			mainChain.push_back(pairs[0].second);
+			for (typename T2::const_iterator it = pairs.begin(); it != pairs.end(); it++)
+			{
+				mainChain.push_back(it->first);
+				pending.push_back(it->second);
+			}
+			if (oddNbr)
+				pending.push_back(lastNbr);
+			pendingInsertion(mainChain, pending, pairs, nbCmp);
+
+			unsorted = mainChain;
+		}
+
+		template <typename T1, typename T2>
+		static T2	makePairs(const T1& unsorted, int& nbCmp)
+		{
+			T2	pairs;
+
+			for (size_t i = 0; i + 1 < unsorted.size(); i += 2)
+			{
+				++nbCmp;
+				if (unsorted[i] > unsorted[i + 1])
+					pairs.push_back(std::make_pair(unsorted[i], unsorted[i + 1]));
+				else
+					pairs.push_back(std::make_pair(unsorted[i + 1], unsorted[i]));
+			}
+			return pairs;
+		}
+
+		template <typename T1, typename T2>
+		static void	sortPairs(T2& pairs, const T1& largers)
+		{
+			T2	sorted;
+
+			for (typename T1::const_iterator it1 = largers.begin(); it1 != largers.end(); ++it1)
+			{
+				for (typename T2::const_iterator it2 = pairs.begin(); it2 != pairs.end(); ++it2)
+				{
+					if (*it1 == it2->first)
+					{
+						sorted.push_back(*it2);
+						break ;
+					}
+				}
+			}
+			pairs = sorted;
+		}
+
 		//Insert pending chain in main chain
 		template<typename T1, typename T2>
 		static void	pendingInsertion(T1& mainChain, const T1& pending, const T2& pairs, int& nbCmp)
@@ -110,78 +177,10 @@ class PmergeMe
 
 		template <typename T>
 		static void	checkDuplicate(const T& vec, int val)
-	{
-		for (size_t i = 0; i < vec.size(); ++i)
-			if (vec[i] == val)
-				throw std::runtime_error("duplicate value in arguments");
-	}
-
-		template <typename T1, typename T2>
-		static void	fordJohnSort(T1& unsorted, int& nbCmp)
 		{
-			bool	oddNbr = false;
-			int		lastNbr = unsorted.back();
-
-			if (unsorted.size() < 2)
-				return ;
-			if (unsorted.size() % 2 != 0)
-				oddNbr = true;
-			T2	pairs = makePairs<T1, T2>(unsorted, nbCmp);
-			T1 largers;
-			for (size_t i = 0; i < pairs.size(); ++i)
-				largers.push_back(pairs[i].first);
-			fordJohnSort<T1, T2>(largers, nbCmp);
-			sortPairs(pairs, largers);
-
-			T1	mainChain;
-			T1	pending;
-			mainChain.push_back(pairs[0].second);
-			for (typename T2::const_iterator it = pairs.begin(); it != pairs.end(); it++)
-			{
-				mainChain.push_back(it->first);
-				pending.push_back(it->second);
-			}
-			if (oddNbr)
-				pending.push_back(lastNbr);
-			pendingInsertion(mainChain, pending, pairs, nbCmp);
-
-			unsorted = mainChain;
+			for (size_t i = 0; i < vec.size(); ++i)
+				if (vec[i] == val)
+					throw std::runtime_error("duplicate value in arguments");
 		}
-
-		template <typename T1, typename T2>
-		static T2	makePairs(const T1& unsorted, int& nbCmp)
-		{
-			T2	pairs;
-
-			for (size_t i = 0; i + 1 < unsorted.size(); i += 2)
-			{
-				++nbCmp;
-				if (unsorted[i] > unsorted[i + 1])
-					pairs.push_back(std::make_pair(unsorted[i], unsorted[i + 1]));
-				else
-					pairs.push_back(std::make_pair(unsorted[i + 1], unsorted[i]));
-			}
-			return pairs;
-		}
-
-		template <typename T1, typename T2>
-		static void	sortPairs(T2& pairs, const T1& largers)
-		{
-			T2	sorted;
-
-			for (typename T1::const_iterator it1 = largers.begin(); it1 != largers.end(); ++it1)
-			{
-				for (typename T2::const_iterator it2 = pairs.begin(); it2 != pairs.end(); ++it2)
-				{
-					if (*it1 == it2->first)
-					{
-						sorted.push_back(*it2);
-						break ;
-					}
-				}
-			}
-			pairs = sorted;
-		}
-
 };
 #endif

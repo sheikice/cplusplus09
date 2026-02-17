@@ -5,7 +5,7 @@ int main(int ac, char **av)
 {
 	if (ac != 2)
 	{
-		std::cout << "Usage ./RPN \"1 2 3 * +\"\n";
+		std::cerr << "Usage ./RPN \"1 2 3 * +\"\n";
 		return 1;
 	}
 	try
@@ -14,7 +14,7 @@ int main(int ac, char **av)
 	}
 	catch (std::exception& e)
 	{
-		std::cout << "Error: " << e.what() << '\n';
+		std::cerr << "Error: " << e.what() << '\n';
 		return 1;
 	}
 	return 0;

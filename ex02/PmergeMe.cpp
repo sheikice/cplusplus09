@@ -1,6 +1,5 @@
 #include "PmergeMe.hpp"
 
-//TODO: two algos
 void	PmergeMe::pMergeMe(char** arg)
 {
 	std::vector<int>	before = strToIntVector(arg);
@@ -17,10 +16,10 @@ void	PmergeMe::pMergeMe(char** arg)
 	double	start2 = getTime();
 	fordJohnSort<std::deque<int>, std::deque<std::pair<int, int> > >(afterDeq, nbCmp);
 	double	end2 = getTime();
-	checkSort(afterVeq);
+	checkSort(afterDeq);
 	printResult(before, afterVeq, nbCmp);
 	printTime(afterVeq.size(), start, end, "std::vector<int> ");
-	printTime(afterVeq.size(), start2, end2, "std::deque<int> ");
+	printTime(afterDeq.size(), start2, end2, "std::deque<int> ");
 }
 
 std::vector<int>	PmergeMe::strToIntVector(char **arg)
