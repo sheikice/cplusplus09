@@ -29,7 +29,7 @@ class PmergeMe
 		static bool	isJacobStahlNbr(int);
 
 		static double	getTime();
-		static void	printTime(std::size_t, double start, double end);
+		static void	printTime(std::size_t, double start, double end, const std::string&);
 
 		template<typename T>
 		static void	binaryInsertion(T& mainChain, int val, size_t indexMax, int& nbCmp)

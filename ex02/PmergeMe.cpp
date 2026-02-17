@@ -19,18 +19,23 @@ void	PmergeMe::pMergeMe(char** arg)
 	double	end2 = getTime();
 	checkSort(afterVeq);
 	printResult(before, afterVeq, nbCmp);
-	printTime(afterVeq.size(), start, end);
-	printTime(afterVeq.size(), start2, end2);
+	printTime(afterVeq.size(), start, end, "std::vector<int> ");
+	printTime(afterVeq.size(), start2, end2, "std::deque<int> ");
 }
 
 std::vector<int>	PmergeMe::strToIntVector(char **arg)
 {
 	std::vector<int>	vec;
 	char*	end;
+	int	size = 0;
+	static const int MAX_SIZE = 10000;
 
 	errno = 0;
 	while (arg && *arg)
 	{
+		++size;
+		if (size > MAX_SIZE)
+			throw std::out_of_range("Too many args. <= 10 000 is tolerated");
 		if (std::string(*arg) == "")
 			throw std::runtime_error("bad arguments");
 		std::string	token(*arg);
@@ -42,8 +47,7 @@ std::vector<int>	PmergeMe::strToIntVector(char **arg)
 			throw std::out_of_range("overflow");
 		double	val(std::strtod(token.c_str(), &end));
 		checkVal(val, end);
-		//weird cast
-		checkDuplicate(vec, static_cast<int>(val));
+		checkDuplicate(vec, val);
 		vec.push_back(static_cast<int>(val));
 		++arg;
 	}
@@ -51,7 +55,7 @@ std::vector<int>	PmergeMe::strToIntVector(char **arg)
 }
 bool	PmergeMe::isJacobStahlNbr(int nbr)
 {
-	const int SIZE_JACOBSTAHL_LIST = 13;
+	static const int SIZE_JACOBSTAHL_LIST = 13;
 	int	JacobNbr[SIZE_JACOBSTAHL_LIST] = {1, 3, 5, 11, 21, 43, 85, 171, 341, 683, 1365, 2731, 5461};
 
 	for (size_t i = 0; i < SIZE_JACOBSTAHL_LIST; ++i)
@@ -67,11 +71,11 @@ void	PmergeMe::checkVal(double nbr, char *end)
 	if (nbr > INT_MAX)
 		throw std::out_of_range("overflow");
 }
-void PmergeMe::printTime(size_t sizeList, double start, double end)
+void PmergeMe::printTime(size_t sizeList, double start, double end, const std::string& type)
 {
 	double diffTime = end - start;
 
-	std::cout << "Time to process a range of " << sizeList << " elements with " << "std::vector<int> : " << static_cast<double>(diffTime) << " μs\n";
+	std::cout << "Time to process a range of " << sizeList << " elements with " << type << ": " << static_cast<double>(diffTime) << " μs\n";
 }
 
 double PmergeMe::getTime()
