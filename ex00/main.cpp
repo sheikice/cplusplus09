@@ -5,7 +5,7 @@ int main(int ac, char **av)
 {
 	if (ac != 2)
 	{
-		std::cout << "Usage ./btc file.csv\n";
+		std::cout << "Usage ./btc inputFile\n";
 		return 1;
 	}
 	try
