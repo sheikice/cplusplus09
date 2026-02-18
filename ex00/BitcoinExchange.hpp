@@ -8,6 +8,8 @@ class BitcoinExchange
 {
 	private:
 		BitcoinExchange();
+		BitcoinExchange(const BitcoinExchange&);
+		BitcoinExchange& operator=(const BitcoinExchange&);
 		~BitcoinExchange();
 		static int getDate(std::string&, const std::string&);
 		static float getFloatValue(const std::string line, const std::string& sep, float max);
