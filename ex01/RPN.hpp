@@ -3,7 +3,6 @@
 
 #include <stack>
 #include <string>
-#include <vector>
 #include <list>
 
 class RPN
@@ -14,7 +13,6 @@ class RPN
 		RPN& operator=(const RPN&);
 		~RPN();
 
-		static std::vector<std::string> getTokens(const char*);
 		static bool isDigit(std::string&);
 		static bool isOperator(std::string&);
 		static void pushStack(std::string&, std::stack<int, std::list<int> >&);

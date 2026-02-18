@@ -7,15 +7,16 @@
 
 void RPN::rpn(const char *av)
 {
-	std::vector<std::string> tokens = getTokens(av);
 	std::stack<int, std::list<int> > stck;
+	std::istringstream iss(av);
+	std::string token;
 
-	for (std::vector<std::string>::iterator it = tokens.begin(); it != tokens.end(); it++)
+	while (iss >> token)
 	{
-		if (isDigit(*it))
-			pushStack(*it, stck);
-		else if (isOperator(*it))
-			operate(*it, stck);
+		if (isDigit(token))
+			pushStack(token, stck);
+		else if (isOperator(token))
+			operate(token, stck);
 		else
 			throw WrongEntryException();
 	}
@@ -65,17 +66,6 @@ void RPN::operate(std::string& token, std::stack<int, std::list<int> >& stck)
 	for (int i = 0; i < OPERATIONS_CHOICE; i++)
 		if (operations[i] == token)
 			stck.top() = (*func[i])(stck.top(), tmp);
-}
-
-std::vector<std::string> RPN::getTokens(const char *av)
-{
-	std::istringstream iss(av);
-	std::vector<std::string> tokens;
-	std::string token;
-
-	while (iss >> token)
-		tokens.push_back(token);
-	return tokens;
 }
 
 int  RPN::plus(int a, int b)
