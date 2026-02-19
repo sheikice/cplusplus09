@@ -20,16 +20,62 @@ class PmergeMe
 		~PmergeMe();
 		PmergeMe(const PmergeMe&);
 		PmergeMe&	operator=(const PmergeMe&);
+		
 
 	public:
-		static void	pMergeMe(char**);
-		static std::vector<int>	strToIntVector(char**);
 		static void	checkVal(double, char*);
-
 		static bool	isJacobStahlNbr(int);
-
 		static double	getTime();
-		static void	printTime(std::size_t, double start, double end, const std::string&);
+		static void	printTime(std::size_t, double, double, const std::string&);
+
+		template <typename T1, typename T2>
+		static void	pMergeMe(char** arg, std::string type)
+		{
+			double	start = getTime();
+			T1	before;
+			strConvert(arg, before);
+			T1	after(before);
+
+			int	nbCmp = 0;
+			fordJohnSort<T1, T2>(after, nbCmp);
+			double	end = getTime();
+
+			checkSort(after);
+			if (type == "vector")
+				printResult(before, after, nbCmp);
+			printTime(after.size(), start, end, type);
+		}
+
+		template<typename T>
+		static T	strConvert(char **arg, T& container)
+		{
+			char*	end;
+			int	size = 0;
+			static const int MAX_SIZE = 10000;
+
+			errno = 0;
+			while (arg && *arg)
+			{
+				++size;
+				if (size > MAX_SIZE)
+					throw std::out_of_range("Too many args. <= 10 000 is tolerated");
+				if (std::string(*arg) == "")
+					throw std::runtime_error("bad arguments");
+				std::string	token(*arg);
+				if (token.find(".", 0) != std::string::npos)
+					throw std::runtime_error("bad arguments");
+				if (token.find("-", 0) != std::string::npos)
+					throw std::runtime_error("bad arguments");
+				if (errno == ERANGE)
+					throw std::out_of_range("overflow");
+				double	val(std::strtod(token.c_str(), &end));
+				checkVal(val, end);
+				checkDuplicate(container, val);
+				container.push_back(static_cast<int>(val));
+				++arg;
+			}
+			return container;
+		}
 
 		template<typename T>
 		static void	binaryInsertion(T& mainChain, int val, size_t indexMax, int& nbCmp)
@@ -51,7 +97,7 @@ class PmergeMe
 			if (unsorted.size() % 2 != 0)
 				oddNbr = true;
 			T2	pairs = makePairs<T1, T2>(unsorted, nbCmp);
-			T1 largers;
+			T1	largers;
 			for (size_t i = 0; i < pairs.size(); ++i)
 				largers.push_back(pairs[i].first);
 			fordJohnSort<T1, T2>(largers, nbCmp);
@@ -118,11 +164,13 @@ class PmergeMe
 					size_t j = i;
 					do
 					{
-						typename T1::iterator	posAj = std::find(mainChain.begin() + i, mainChain.end(), pairs[j].first);
-						if (posAj == mainChain.end())
-							binaryInsertion(mainChain, pending[j], mainChain.size(), nbCmp);
+						if (j > pairs.size())
+								binaryInsertion(mainChain, pending[j], mainChain.size(), nbCmp);
 						else
+						{
+							typename T1::iterator	posAj = std::find(mainChain.begin() + i, mainChain.end(), pending[j]);
 							binaryInsertion(mainChain, pending[j],  posAj - mainChain.begin(), nbCmp);
+						}
 						--j;
 					}
 					while (isJacobStahlNbr(j + 1) == false);
@@ -158,28 +206,29 @@ class PmergeMe
 		template<typename T>
 		static void	printResult(const T& before, const T& after, const int& nbCmp)
 		{
-			std::cout << "\nBefore: ";
+			std::cout << "\n\nTotal nbr of comparisons = " << nbCmp << "\n\n";
+			std::cout << "Before: ";
 			for (size_t i = 0; i < before.size(); ++i)
 				std::cout << " " << before[i];
 			std::cout << "\nAfter: ";
 			for (size_t i = 0; i < after.size(); ++i)
 				std::cout << " " << after[i];
-			std::cout << "\n\nTotal nbr of comparisons = " << nbCmp << "\n\n";
+			std::cout << '\n';
 		}
 
 		template<typename T>
-		static void	checkSort(const T& vec)
+		static void	checkSort(const T& cont)
 		{
-			for(size_t i = 1; i < vec.size(); ++i)
-				if (vec[i] < vec[i - 1])
+			for(size_t i = 1; i < cont.size(); ++i)
+				if (cont[i] < cont[i - 1])
 					throw std::runtime_error("sorting has failed");
 		}
 
 		template <typename T>
-		static void	checkDuplicate(const T& vec, int val)
+		static void	checkDuplicate(const T& cont, int val)
 		{
-			for (size_t i = 0; i < vec.size(); ++i)
-				if (vec[i] == val)
+			for (size_t i = 0; i < cont.size(); ++i)
+				if (cont[i] == val)
 					throw std::runtime_error("duplicate value in arguments");
 		}
 };
