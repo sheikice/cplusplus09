@@ -1,6 +1,4 @@
 #include "PmergeMe.hpp"
-#include <iostream>
-#include <exception>
 
 int main(int ac, char **av)
 {
@@ -11,7 +9,8 @@ int main(int ac, char **av)
 	}
 	try
 	{
-		PmergeMe::pMergeMe(av + 1);
+		PmergeMe::pMergeMe<std::vector<int>, std::vector<std::pair<int, int> > >(av + 1, "vector");
+		PmergeMe::pMergeMe<std::deque<int>, std::deque<std::pair<int, int> > >(av + 1, "deque");
 	}
 	catch (std::exception& e)
 	{
